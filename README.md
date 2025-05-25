@@ -78,8 +78,9 @@ Where:
 For more accurate physical behavior:
 
 $$
-E = \frac{1}{2} \sum_{j=1}^{N} \sum_{i=1}^{n} \left\{ \gamma(S_i, S_j)(1 - \delta_{S_i, S_j}) + F(S_j) \right\}
+E = \frac{1}{2} \sum_{j=1}^{N} \sum_{i=1}^{n} \{ \gamma(S_i, S_j)(1 - \delta_{S_i, S_j}) + F(S_j) \}
 $$
+
 
 Where:
 - $N$: Total number of lattice sites
