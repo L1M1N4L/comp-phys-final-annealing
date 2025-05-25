@@ -64,7 +64,9 @@ Annealing is a controlled heat treatment process where metals are heated to a sp
 ### 1. Total System Energy (Basic Potts Model)
 The system is represented as a lattice of sites, where each site has an orientation (spin) σ. The total system energy E is calculated as:
 
-$E = \sum_{\langle i,j \rangle} J(1 - \delta_{\sigma_i, \sigma_j})$
+$$
+E = \sum_{\langle i,j \rangle} J(1 - \delta_{\sigma_i, \sigma_j})
+$$
 
 Where:
 - $\langle i, j \rangle$: Neighboring lattice site pairs
@@ -75,7 +77,9 @@ Where:
 ### 2. Extended Energy Model
 For more accurate physical behavior:
 
-$E = \frac{1}{2} \sum_{j=1}^{N} \sum_{i=1}^{n} \left\{ \gamma(S_i, S_j)(1 - \delta_{S_i, S_j}) + F(S_j) \right\}$
+$$
+E = \frac{1}{2} \sum_{j=1}^{N} \sum_{i=1}^{n} \left\{ \gamma(S_i, S_j)(1 - \delta_{S_i, S_j}) + F(S_j) \right\}
+$$
 
 Where:
 - $N$: Total number of lattice sites
@@ -87,7 +91,12 @@ Where:
 ### 3. Transition Probability (Metropolis Algorithm)
 The Metropolis acceptance rule:
 
-$P(\text{accept}) = \begin{cases} 1, & \Delta E \leq 0 \\ \exp\left(-\frac{\Delta E}{kT}\right), & \Delta E > 0 \end{cases}$
+$$
+P(\text{accept}) = \begin{cases} 
+1, & \Delta E \leq 0 \\ 
+\exp\left(-\frac{\Delta E}{kT}\right), & \Delta E > 0 
+\end{cases}
+$$
 
 Where:
 - $\Delta E$: Energy change
@@ -97,12 +106,19 @@ Where:
 ### 4. Mobility-Weighted Metropolis Algorithm
 Extended transition rule incorporating grain boundary mobility:
 
-$P = \begin{cases} \frac{\gamma(S_i, S_j)}{\gamma_{\max}} \cdot \frac{\mu(S_i, S_j)}{\mu_{\max}}, & \Delta E \leq 0 \\ \frac{\gamma(S_i, S_j)}{\gamma_{\max}} \cdot \frac{\mu(S_i, S_j)}{\mu_{\max}} \cdot \exp\left(-\frac{\Delta E}{T}\right), & \Delta E > 0 \end{cases}$
+$$
+P = \begin{cases} 
+\frac{\gamma(S_i, S_j)}{\gamma_{\max}} \cdot \frac{\mu(S_i, S_j)}{\mu_{\max}}, & \Delta E \leq 0 \\ 
+\frac{\gamma(S_i, S_j)}{\gamma_{\max}} \cdot \frac{\mu(S_i, S_j)}{\mu_{\max}} \cdot \exp\left(-\frac{\Delta E}{T}\right), & \Delta E > 0 
+\end{cases}
+$$
 
 ### 5. Grain Growth Kinetics
 The rate of grain growth follows the relationship:
 
-$\frac{dR}{dt} = M \cdot \frac{\gamma}{R}$
+$$
+\frac{dR}{dt} = M \cdot \frac{\gamma}{R}
+$$
 
 Where:
 - $R$: Grain radius
