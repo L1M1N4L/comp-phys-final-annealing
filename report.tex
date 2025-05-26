@@ -1,0 +1,281 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{Monte Carlo Simulation of Annealing and Grain Growth}
+\author{YOUR NAME HERE}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This report presents a Monte Carlo simulation of the annealing process in polycrystalline materials. The simulation models grain growth and energy evolution using a simplified 2D grid, with results visualized through energy, temperature, and microstructure plots. The code was developed in Python and includes a discussion of encountered challenges and recommendations for future work.
+\end{abstract}
+
+\section{Project Overview and Usage}
+This project implements a Monte Carlo simulation of the annealing process for polycrystalline materials. The simulation is written in Python and is designed to be both extensible and user-friendly. The main features include:
+\begin{itemize}
+    \item Monte Carlo simulation of grain growth during annealing
+    \item Material-specific properties and temperature profiles
+    \item Residual stress prediction and visualization
+    \item Grain size distribution tracking and statistical analysis
+    \item Comprehensive visualization of the annealing process
+\end{itemize}
+
+\subsection{Project Structure}
+The codebase is organized as follows:
+\begin{verbatim}
+annealing/
+├── src/
+│   ├── models/
+│   │   ├── annealing_simulation.py
+│   │   ├── material_properties.py
+│   │   ├── monte_carlo.py
+│   │   └── temperature_controller.py
+│   ├── analysis/
+│   │   └── grain_analyzer.py
+│   ├── visualization/
+│   │   └── visualizer.py
+│   ├── utils/
+│   │   └── helpers.py
+│   └── main.py
+├── frames/
+├── results/
+├── requirements.txt
+└── README.md
+\end{verbatim}
+
+\subsection{How to Run}
+To run the simulation, use:
+\begin{verbatim}
+python src/main.py
+\end{verbatim}
+This will initialize the simulation, run the annealing process, generate visualizations, and save results. If you encounter issues running the advanced or modular versions, simply run \texttt{main.py} for a straightforward simulation and visualization. The \texttt{main.py} script is the simplest and most robust entry point for the simulation.
+
+\subsection{Troubleshooting}
+\begin{itemize}
+    \item If the simulation runs but no grain growth is visible, try reducing the number of grains or increasing the temperature.
+    \item If you encounter errors related to missing attributes, ensure you are using the latest version of the code and only running `main.py`.
+    \item For dependency issues, check that all packages in `requirements.txt` are installed.
+    \item For further help, consult the README or open an issue on the project repository.
+\end{itemize}
+
+\section{Simulation Parameters}
+Table~\ref{tab:params} summarizes the main parameters used in the simulation.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Parameter} & \textbf{Symbol/Variable} & \textbf{Value/Description} \\
+\hline
+Grid size & $N$ & 100 \\
+Number of grains & $n_{grains}$ & 50 \\
+Max iterations & $n_{steps}$ & 500 \\
+Initial temperature & $T_{init}$ & 300 K \\
+Soak temperature & $T_{soak}$ & 1000 K \\
+Final temperature & $T_{final}$ & 300 K \\
+Heating rate & $r_{heat}$ & 5 K/step \\
+Soak duration & $t_{soak}$ & 100 steps \\
+Cooling rate & $r_{cool}$ & 0.5 K/step \\
+Material & & Steel (default) \\
+Boundary energy & $J_{ij}$ & $\geq 1.0$ (for visibility) \\
+\hline
+\end{tabular}
+\caption{Key simulation parameters.}
+\label{tab:params}
+\end{table}
+
+\subsection{Code Structure and Simplicity of main.py}
+The codebase is modular, with separate files for models, analysis, visualization, and utilities. The `main.py` script is a simplified entry point that runs the simulation end-to-end with minimal configuration. If you encounter issues with advanced features, simply run `main.py` for a reliable simulation and visualization workflow.
+
+\section{Introduction}
+Annealing is a heat treatment process used to alter the microstructure of materials, typically to increase ductility and reduce hardness. During annealing, grains within a polycrystalline material grow, reducing the total grain boundary area and system energy. This project implements a Monte Carlo simulation to model grain growth during annealing, using a 2D grid to represent the microstructure.
+
+\section{Mathematical Background}
+The simulation is based on the Potts model and the Metropolis algorithm, widely used in computational materials science to study grain growth and phase transitions.
+
+\subsection{Potts Model}
+The total system energy is given by:
+\[
+E = \sum_{i,j} J_{ij}(1 - \delta_{s_i,s_j})
+\]
+where:
+\begin{itemize}
+    \item $J_{ij}$ is the interaction energy between sites $i$ and $j$
+    \item $\delta_{s_i,s_j}$ is the Kronecker delta
+    \item $s_i$ is the orientation at site $i$
+\end{itemize}
+
+\subsection{Extended Energy Model}
+The energy change for a proposed transition is:
+\[
+\Delta E = E_{new} - E_{old} + \sigma_{residual}
+\]
+where $\sigma_{residual}$ is the contribution from residual stress.
+
+\subsection{Metropolis Algorithm}
+The transition probability is:
+\[
+P = \begin{cases}
+1 & \text{if } \Delta E \leq 0 \\
+\exp(-\Delta E/k_BT) & \text{if } \Delta E > 0
+\end{cases}
+\]
+where $k_B$ is the Boltzmann constant and $T$ is the temperature.
+
+\subsection{Mobility-Weighted Metropolis Algorithm}
+The transition probability can be modified by a mobility factor $M$:
+\[
+P = \begin{cases}
+M & \text{if } \Delta E \leq 0 \\
+M\exp(-\Delta E/k_BT) & \text{if } \Delta E > 0
+\end{cases}
+\]
+
+\subsection{Grain Growth Kinetics}
+The average grain size evolution follows:
+\[
+\bar{D}^n - \bar{D}_0^n = kt
+\]
+where:
+\begin{itemize}
+    \item $\bar{D}$ is the average grain size
+    \item $n$ is the growth exponent
+    \item $k$ is the rate constant
+    \item $t$ is time
+\end{itemize}
+
+\section{Methodology}
+\subsection{Simulation Model}
+The simulation uses a 2D grid where each cell represents a region of a grain. The state of each cell is an integer corresponding to a grain orientation. The system evolves via Monte Carlo steps, where random sites are selected and may adopt the orientation of a neighbor according to the Metropolis criterion:
+\[
+P = \begin{cases}
+1, & \Delta E \leq 0 \\
+\exp\left(-\frac{\Delta E}{k_B T}\right), & \Delta E > 0
+\end{cases}
+\]
+where $\Delta E$ is the change in energy, $k_B$ is the Boltzmann constant, and $T$ is the temperature.
+
+\subsection{Initialization}
+The grid is initialized with $N$ grains, each assigned a unique integer. The initial configuration is randomized to ensure diversity.
+
+\subsection{Monte Carlo Step}
+At each step:
+\begin{enumerate}
+    \item A random site is selected.
+    \item A random neighbor's orientation is chosen as a candidate.
+    \item The energy change $\Delta E$ is computed.
+    \item The change is accepted or rejected based on the Metropolis criterion.
+\end{enumerate}
+
+\subsection{Temperature Profile}
+The temperature is controlled according to a heating-soaking-cooling schedule, simulating the annealing process.
+
+\subsection{Visualization}
+The simulation tracks and visualizes:
+\begin{itemize}
+    \item Grain structure (2D color map)
+    \item Residual stress field (2D color map)
+    \item System energy (line plot)
+    \item Temperature (line plot)
+\end{itemize}
+
+\section{Results}
+\subsection{Energy and Temperature Evolution}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.45\textwidth]{energy_plot.png}
+    \includegraphics[width=0.45\textwidth]{temperature_plot.png}
+    \caption{Left: System energy vs. Monte Carlo steps. Right: Temperature profile during annealing.}
+\end{figure}
+
+The energy plot shows a rapid decrease at the start of the simulation, corresponding to the system minimizing grain boundary area. The temperature profile follows the prescribed heating, soaking, and cooling schedule.
+
+\subsection{Microstructure Evolution}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.45\textwidth]{grain_structure_initial.png}
+    \includegraphics[width=0.45\textwidth]{grain_structure_final.png}
+    \caption{Left: Initial grain structure. Right: Final grain structure after annealing.}
+\end{figure}
+
+The initial microstructure is highly randomized, with each cell assigned a grain index. Ideally, grain growth would result in fewer, larger grains, but in this simulation, the number of unique grains remains high due to parameter choices and the strict Metropolis criterion.
+
+\subsection{Grain Size Distribution}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.6\textwidth]{grain_size_hist.png}
+    \caption{Histogram of grain sizes at the end of the simulation.}
+\end{figure}
+
+\subsection{Discussion}
+The simulation successfully models the energy decrease during annealing. However, visible grain growth was limited, and the number of unique grains remained high. This suggests that further tuning of parameters (temperature, boundary energy, or initialization) is needed for more realistic grain evolution. The code structure allows for easy modification and experimentation with different models and parameters.
+
+\section{Challenges and Lessons Learned}
+\begin{itemize}
+    \item \textbf{Parameter Sensitivity:} The simulation is highly sensitive to temperature and boundary energy. Low temperatures or energies can freeze the microstructure.
+    \item \textbf{Initialization:} Random initialization with too many grains can prevent visible grain growth.
+    \item \textbf{Performance:} Large grids and many grains increase computational time.
+    \item \textbf{Debugging:} Diagnostic printouts (e.g., unique grain count) are useful for tracking simulation progress.
+\end{itemize}
+
+\section{Conclusion}
+A Monte Carlo simulation of annealing was implemented, demonstrating the basic principles of grain growth and energy minimization. The modular codebase and simple main.py entry point make it easy to run and extend the simulation. While the simulation captured energy evolution, further work is needed to achieve realistic grain coarsening. Future improvements could include better initialization, parameter tuning, and more advanced Monte Carlo algorithms.\\
+\\
+\textbf{Note:} For most users, running \texttt{main.py} is recommended for a simple and reliable simulation experience. For advanced features and more detailed analysis, refer to the README and the modular codebase structure.\\
+\\
+\textbf{Key Takeaways:}
+\begin{itemize}
+    \item The Potts model and Metropolis algorithm provide a flexible framework for simulating grain growth.
+    \item Parameter selection (temperature, number of grains, boundary energy) is critical for realistic results.
+    \item The code is designed for both educational and research use, with clear structure and documentation.
+\end{itemize}
+
+\section{References}
+\begin{itemize}
+    \item Porter, D. A., Easterling, K. E., \& Sherif, M. Y. (2009). \textit{Phase Transformations in Metals and Alloys}. CRC press.
+    \item Srolovitz, D. J., Anderson, M. P., et al. (1984). Computer simulation of grain growth—I. Kinetics. \textit{Acta Metallurgica}, 32(5), 793-802.
+    \item \url{https://en.wikipedia.org/wiki/Monte_Carlo_method}
+\end{itemize}
+
+\section{Key Code Snippets}
+\subsection{Monte Carlo Step}
+\begin{verbatim}
+def monte_carlo_step(self, grain_analyzer):
+    self.temperature = self.temperature_controller.update_temperature()
+    attempts = self.grid_size * self.grid_size
+    for _ in range(attempts):
+        i = np.random.randint(0, self.grid_size)
+        j = np.random.randint(0, self.grid_size)
+        current = self.grid[i, j]
+        neighbors = [self.grid[(i+di)%self.grid_size, (j+dj)%self.grid_size]
+                     for di, dj in [(-1,0), (1,0), (0,-1), (0,1)]]
+        new_orientation = neighbors[np.random.randint(0, len(neighbors))]
+        old_energy = self.calculate_energy(i, j)
+        self.grid[i, j] = new_orientation
+        new_energy = self.calculate_energy(i, j)
+        delta_energy = new_energy - old_energy
+        if delta_energy > 0:
+            kT = self.boltzmann_constant * self.temperature
+            if kT == 0 or np.random.random() > np.exp(-delta_energy / kT):
+                self.grid[i, j] = current
+    self._update_statistics(grain_analyzer)
+\end{verbatim}
+
+\subsection{Initialization}
+\begin{verbatim}
+def create_initial_structure(self, num_grains):
+    self.grid[:, :] = np.random.randint(1, num_grains + 1, size=(self.grid_size, self.grid_size), dtype=np.int32)
+    positions = np.random.permutation(self.grid_size * self.grid_size)[:num_grains]
+    x = positions % self.grid_size
+    y = positions // self.grid_size
+    self.grid[y, x] = np.arange(1, num_grains + 1, dtype=np.int32)
+\end{verbatim}
+
+\end{document} 

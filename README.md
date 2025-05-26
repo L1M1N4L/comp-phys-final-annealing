@@ -1,260 +1,140 @@
-# Monte Carlo Approach to Metal Annealing
+# Annealing Simulation
 
-This project implements a Monte Carlo simulation of the annealing process in polycrystalline materials, providing insights into grain growth, recrystallization, and microstructure evolution.
+A Python-based simulation of the annealing process for polycrystalline materials, incorporating advanced features such as rate sensitivity, component-specific soaking, cooling effects, abnormal grain detection, and residual stress prediction.
 
-## Overview
+## Features
 
-### Definition and Purpose
-Annealing is a controlled heat treatment process where metals are heated to a specific temperature and then cooled at a controlled rate. This simulation helps understand and predict the microstructural changes during this process.
-
-### Physical Process Breakdown
-1. **Heating Phase**
-   - Material is heated above recrystallization temperature
-   - Enables atomic diffusion and dislocation recovery
-   - Typical heating rates:
-     * Aluminum alloys: 3-5°C/min
-     * Steels: 10-15°C/min
-     * Titanium alloys: 5-8°C/min
-
-2. **Soaking Phase**
-   - Material is held at high temperature
-   - Allows grain nucleation and growth
-   - Enables atomic diffusion
-   - Duration depends on:
-     * Material thickness
-     * Desired grain size
-     * Alloy composition
-
-3. **Cooling Phase**
-   - Controlled cooling determines final microstructure
-   - Slow cooling → equilibrium structures
-   - Faster cooling → enhanced properties (hardness, toughness)
-   - Cooling rates affect:
-     * Grain size distribution
-     * Phase transformations
-     * Residual stresses
-
-## Theoretical Background
-
-### Crystal Structure and Defects
-1. **Crystal Lattice**
-   - Face-centered cubic (FCC)
-   - Body-centered cubic (BCC)
-   - Hexagonal close-packed (HCP)
-
-2. **Defects**
-   - Point defects (vacancies, interstitials)
-   - Line defects (dislocations)
-   - Planar defects (grain boundaries)
-   - Volume defects (voids, inclusions)
-
-### Grain Boundary Physics
-1. **Types of Boundaries**
-   - Low-angle boundaries (< 15°)
-   - High-angle boundaries (> 15°)
-   - Special boundaries (Σ3, Σ5, etc.)
-
-2. **Boundary Energy**
-   - Orientation-dependent energy
-   - Temperature dependence
-   - Impurity effects
-
-## Mathematical Formulation
-
-### 1. Total System Energy (Basic Potts Model)
-The system is represented as a lattice of sites, where each site has an orientation (spin) σ. The total system energy E is calculated as:
-
-$$
-E = \sum_{\langle i,j \rangle} J(1 - \delta_{\sigma_i, \sigma_j})
-$$
-
-Where:
-- $\langle i, j \rangle$: Neighboring lattice site pairs
-- $\sigma_i$: Orientation (spin) at site i
-- $J$: Interaction energy constant
-- $\delta_{\sigma_i, \sigma_j}$: Kronecker delta (1 if $\sigma_i = \sigma_j$, 0 otherwise)
-
-### 2. Extended Energy Model
-For more accurate physical behavior:
-
-$$
-E = \frac{1}{2} \sum_{j=1}^{N} \sum_{i=1}^{n} \{ \gamma(S_i, S_j)(1 - \delta_{S_i, S_j}) + F(S_j) \}
-$$
-
-
-Where:
-- $N$: Total number of lattice sites
-- $n$: Number of neighbors per site
-- $S_i, S_j$: Grain orientations
-- $\gamma(S_i, S_j)$: Orientation-dependent grain boundary energy
-- $F(S_j)$: Stored energy at site j
-
-### 3. Transition Probability (Metropolis Algorithm)
-The Metropolis acceptance rule:
-
-$$
-P(\text{accept}) = \begin{cases} 
-1, & \Delta E \leq 0 \\ 
-\exp\left(-\frac{\Delta E}{kT}\right), & \Delta E > 0 
-\end{cases}
-$$
-
-Where:
-- $\Delta E$: Energy change
-- $k$: Boltzmann constant
-- $T$: Simulation temperature
-
-### 4. Mobility-Weighted Metropolis Algorithm
-Extended transition rule incorporating grain boundary mobility:
-
-$$
-P = \begin{cases} 
-\frac{\gamma(S_i, S_j)}{\gamma_{\max}} \cdot \frac{\mu(S_i, S_j)}{\mu_{\max}}, & \Delta E \leq 0 \\ 
-\frac{\gamma(S_i, S_j)}{\gamma_{\max}} \cdot \frac{\mu(S_i, S_j)}{\mu_{\max}} \cdot \exp\left(-\frac{\Delta E}{T}\right), & \Delta E > 0 
-\end{cases}
-$$
-
-### 5. Grain Growth Kinetics
-The rate of grain growth follows the relationship:
-
-$$
-\frac{dR}{dt} = M \cdot \frac{\gamma}{R}
-$$
-
-Where:
-- $R$: Grain radius
-- $M$: Grain boundary mobility
-- $\gamma$: Grain boundary energy
-- $t$: Time
-
-## Implementation Details
-
-### 1. Grid Representation
-- 2D square lattice
-- Periodic boundary conditions
-- Variable grid resolution
-- Memory-efficient data structures
-
-### 2. Monte Carlo Steps
-1. **Site Selection**
-   - Random site selection
-   - Weighted selection based on energy
-   - Boundary-focused sampling
-
-2. **Energy Calculation**
-   - Local energy computation
-   - Efficient neighbor lookup
-   - Cached energy values
-
-3. **State Updates**
-   - Atomic operations
-   - Parallel processing
-   - Checkpointing
-
-### 3. Performance Optimizations
-1. **Computational**
-   - Multi-threading
-   - SIMD operations
-   - Cache-aware algorithms
-
-2. **Memory**
-   - Sparse matrix storage
-   - Memory mapping
-   - Incremental updates
-
-## Validation and Verification
-
-### 1. Analytical Validation
-- Comparison with analytical solutions
-- Energy conservation checks
-- Boundary condition verification
-
-### 2. Experimental Validation
-- Comparison with experimental data
-- Grain size distribution analysis
-- Texture evolution verification
-
-### 3. Convergence Studies
-- Grid size dependence
-- Time step sensitivity
-- Statistical sampling
-
-## Applications
-
-### Industrial Applications
-1. **Heat Treatment Parameter Design**
-   - Optimal heating rates
-   - Soaking time optimization
-   - Cooling rate control
-   - Process window determination
-
-2. **Microstructure Tailoring**
-   - Grain size control (5-12µm range)
-   - Distribution management
-   - Texture development
-   - Phase transformation control
-
-3. **Defect Prevention**
-   - Abnormal grain growth prediction
-   - Residual stress reduction
-   - Quality control criteria
-   - Process optimization
-
-### Computational Aspects
-1. **Parallel Processing**
-   - Multi-threading optimization
-   - Memory management
-   - Cache-aware algorithms
-   - Load balancing
-
-2. **Storage and I/O**
-   - Checkpointing
-   - Incremental storage
-   - Real-time visualization
-   - Data compression
+- Monte Carlo simulation of grain growth during annealing
+- Material-specific properties and temperature profiles
+- Component-specific soaking time calculations
+- Residual stress prediction and visualization
+- Abnormal grain detection and analysis
+- Grain size distribution tracking and statistical analysis
+- Comprehensive visualization of the annealing process
 
 ## Installation
 
-1. Clone this repository
-2. Install the required dependencies:
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/annealing.git
+cd annealing
+```
+
+2. Create a virtual environment (optional but recommended):
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
 ## Usage
 
-Run the simulation using:
+Run the simulation:
 ```bash
 python src/main.py
 ```
 
-The program will:
-1. Create an initial microstructure
-2. Run the annealing simulation
-3. Generate two animation files in the `frames` directory:
-   - `annealing_animation.gif`: Basic animation of the annealing process
-   - `annealing_with_plots.gif`: Detailed visualization with plots
+This will:
+1. Initialize the simulation with default parameters
+2. Run the annealing process
+3. Generate visualizations in the `frames` directory
+4. Save results in the `results` directory
+5. Display inspection results in the console
 
-## Parameters
+## Project Structure
 
-You can modify the simulation parameters in `src/main.py`:
-- `grid_size`: Size of the simulation grid (default: 50)
-- `num_grains`: Number of initial grains (default: 20)
-- `max_iterations`: Number of simulation steps (default: 200)
+```
+annealing/
+├── src/
+│   ├── models/
+│   │   ├── annealing_simulation.py
+│   │   ├── material_properties.py
+│   │   ├── monte_carlo.py
+│   │   └── temperature_controller.py
+│   ├── analysis/
+│   │   └── grain_analyzer.py
+│   ├── visualization/
+│   │   └── visualizer.py
+│   ├── utils/
+│   │   └── helpers.py
+│   └── main.py
+├── frames/
+├── results/
+├── requirements.txt
+└── README.md
+```
 
-## Output
+## Mathematical Formulation
 
-The simulation generates two types of visualizations:
-1. A simple animation showing the evolution of the microstructure
-2. A detailed visualization with plots showing:
-   - Microstructure evolution
-   - System energy over time
-   - Average grain size and temperature profiles
+### Basic Potts Model
+The total system energy is given by:
 
-## References
+$$E = \sum_{i,j} J_{ij}(1 - \delta_{s_i,s_j})$$
 
-1. Monte Carlo Methods in Statistical Physics
-2. Grain Growth in Polycrystalline Materials
-3. Computer Simulation of Microstructural Evolution
-4. Phase Transformations in Metals and Alloys
-5. Materials Science and Engineering: An Introduction 
+where:
+- $J_{ij}$ is the interaction energy between sites $i$ and $j$
+- $\delta_{s_i,s_j}$ is the Kronecker delta
+- $s_i$ is the orientation at site $i$
+
+### Extended Energy Model
+The energy change for a proposed transition is:
+
+$$\Delta E = E_{new} - E_{old} + \sigma_{residual}$$
+
+where $\sigma_{residual}$ is the contribution from residual stress.
+
+### Metropolis Algorithm
+The transition probability is:
+
+$$P = \begin{cases}
+1 & \text{if } \Delta E \leq 0 \\
+\exp(-\Delta E/k_BT) & \text{if } \Delta E > 0
+\end{cases}$$
+
+### Mobility-Weighted Metropolis Algorithm
+The transition probability is modified by mobility:
+
+$$P = \begin{cases}
+M & \text{if } \Delta E \leq 0 \\
+M\exp(-\Delta E/k_BT) & \text{if } \Delta E > 0
+\end{cases}$$
+
+where $M$ is the mobility factor.
+
+### Grain Growth Kinetics
+The average grain size evolution follows:
+
+$$\bar{D}^n - \bar{D}_0^n = kt$$
+
+where:
+- $\bar{D}$ is the average grain size
+- $n$ is the growth exponent
+- $k$ is the rate constant
+- $t$ is time
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Based on the Potts model for grain growth
+- Inspired by materials science research in annealing processes
+- References:
+  1. "Computer Simulation of Grain Growth" by Rollett et al.
+  2. "Phase Field Methods in Materials Science and Engineering" by Chen
+  3. "Grain Growth in Metals" by Humphreys and Hatherly
+  4. "Materials Science and Engineering: An Introduction" by Callister
+  5. "Physical Metallurgy Principles" by Reed-Hill and Abbaschian 
